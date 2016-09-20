@@ -50,6 +50,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 	if (!flag)
 	{
 		std::cerr << "ERROR>>>>Member function drawCurve is not implemented!" << std::endl;
+		/*!!!this is the diff of the first commit!!!*/
 		flag = true;
 	}
 	//=========================================================================
