@@ -81,6 +81,7 @@ namespace Util {
 		void sortControlPoints();
 
 	private:
+
 		// Contains the controlPoints that are used to create the curve
 		std::vector<CurvePoint> controlPoints;
 
