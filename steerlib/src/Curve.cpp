@@ -52,6 +52,7 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 		{
 			DrawLib::drawLine(path.at(i-window), path.at(i), curveColor, curveThickness);
 		}
+
 	}
 	// std::cout<<"Drawing:"<<prevPoint<<" to "<<curPoint<<std::endl;
 	// Robustness: make sure there is at least two control point: start and end points
