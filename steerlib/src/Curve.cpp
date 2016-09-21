@@ -52,7 +52,6 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 		{
 			DrawLib::drawLine(path.at(i-window), path.at(i), curveColor, curveThickness);
 		}
-
 	}
 	// std::cout<<"Drawing:"<<prevPoint<<" to "<<curPoint<<std::endl;
 	// Robustness: make sure there is at least two control point: start and end points
@@ -156,7 +155,6 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	unsigned int prev_point_index = nextPoint - 1;
 	normalTime = controlPoints.at(prev_point_index).time;
 	intervalTime = controlPoints.at(nextPoint).time;
-	// t = (1-0)*(time - normalTime)/(intervalTime - normalTime) + 0;
 	t = (time - normalTime)/(intervalTime - normalTime);
 	// std::cout <<"prev: "<< prev_point_index<<"  next: "<<nextPoint<<std::endl;
 
@@ -183,32 +181,28 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 	float normalTime, intervalTime;
 	float t;
 
-	unsigned int i_minus_one = nextPoint - 1;
-	if(i_minus_one == 0)
+	int i_minus_one = nextPoint - 2;
+	if(i_minus_one < 0)
 	{
 		i_minus_one = controlPoints.size()-1;
 	}
-	unsigned int i_plus_one = (nextPoint+1)% controlPoints.size();
-	unsigned int i_plus_two = (nextPoint+2)% controlPoints.size();
+	int i = nextPoint - 1;
+	int i_plus_one = nextPoint;
+	int i_plus_two = (nextPoint+1)%controlPoints.size();
+
+	// std::cout<<"i-1 = "<<i_minus_one<<" i = "<<i<<" i+1 = "<<i_plus_one<<" i+2 = "<<i_plus_two<<std::endl;
 	
-	normalTime = controlPoints.at(i_minus_one).time;
-	intervalTime = controlPoints.at(nextPoint).time;
-	// t = (1-0)*(time - normalTime)/(intervalTime - normalTime) + 0;
+	normalTime = controlPoints.at(i).time;
+	intervalTime = controlPoints.at(i_plus_one).time;
 	t = (time - normalTime)/(intervalTime - normalTime);
-	// std::cout <<"prev: "<< i_minus_one<<"  next: "<<nextPoint<<std::endl;
+	// std::cout<<t<<std::endl;
 
+	Point P1 = Point( 1.0f*controlPoints.at(i).position);
+	Point P2 = Point( 0.5f*controlPoints.at(i_plus_one).position + (-0.5f)*controlPoints.at(i_minus_one).position);
+	Point P3 = Point( 1.0f*controlPoints.at(i_minus_one).position + (-5.0f*0.5f)*controlPoints.at(i).position + (2.0f) * controlPoints.at(i_plus_one).position + (-0.5f)*controlPoints.at(i_plus_two).position);
+	Point P4 = Point( (-0.5f)*controlPoints.at(i_minus_one).position + (3.0f*0.5f) * controlPoints.at(i).position + (-3.0f*0.5f) * controlPoints.at(i_plus_one).position + (0.5f)*controlPoints.at(i_plus_two).position);
 
-	float h1 = (-pow(t,3.0) + 2*pow(t,2.0) -t)/2;
-	float h2 = (3*pow(t,3.0) - 5*pow(t,2.0) + 2)/2;
-	float h3 = (-3*pow(t,3.0) + 4*pow(t,2.0) + t)/2;
-	float h4 = (pow(t,3.0) - pow(t,2.0))/2;
+	newPosition = P1 + (P2 * t) + (P3 * t * t) + (P4 * t * t * t);
 
-	// std::cout<<"h1 = "<<h1<<" h2 = "<<h2<<" h3 = "<<h3<<" h4 = "<<h4<<std::endl;
-
-	newPosition = h1*controlPoints.at(i_minus_one).position + h2*controlPoints.at(nextPoint).position + h3*controlPoints.at(i_plus_one).position + h4*controlPoints.at(i_plus_two).position;
-	// std::cout<<"newPosition: "<< newPosition<<std::endl;
-	// Calculate position at t = time on Hermite curve
-
-	// Return result
 	return newPosition;
 }
