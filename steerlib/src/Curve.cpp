@@ -14,7 +14,7 @@
 
 using namespace Util;
 
-std::vector<Point> path;
+
 
 Curve::Curve(const CurvePoint& startPoint, int curveType) : type(curveType)
 {
@@ -53,7 +53,6 @@ void Curve::drawCurve(Color curveColor, float curveThickness, int window)
 			DrawLib::drawLine(path.at(i-window), path.at(i), curveColor, curveThickness);
 		}
 	}
-	// std::cout<<"Drawing:"<<prevPoint<<" to "<<curPoint<<std::endl;
 	// Robustness: make sure there is at least two control point: start and end points
 	// Move on the curve from t=0 to t=finalPoint, using window as step size, and linearly interpolate the curve points
 	// Note that you must draw the whole curve at each frame, that means connecting line segments between each two points on the curve
@@ -79,6 +78,25 @@ void Curve::sortControlPoints()
 			}
 		}
 	}
+
+	//we have to remove points with the same timestamp in order to avoid teleportation issues
+	std::vector<int> indices;
+	for(int i=0; i<controlPoints.size()-2; i++)
+	{
+		std::cout<<controlPoints.at(i).time<<std::endl;
+		if(controlPoints.at(i).time == controlPoints.at(i+1).time)
+		{
+			std::cout<<" i = "<<i<<" i+1 = "<<i+1<<" time_i = "<< controlPoints.at(i).time<< " time_i+1 = "<<controlPoints.at(i+1).time<<std::endl;
+			indices.push_back(i);
+		}
+	}
+
+	for(int i=indices.size()-1; i>=0; i--)
+	{
+		std::cout<<"removing control point with index: "<<indices.at(i)<<std::endl;
+		controlPoints.erase(controlPoints.begin() + indices.at(i));
+	}
+	indices.clear();
 	return;
 }
 
@@ -107,6 +125,7 @@ bool Curve::calculatePoint(Point& outputPoint, float time)
 	{
 		outputPoint = useCatmullCurve(nextPoint, time);
 	}
+	
 	path.push_back(outputPoint);
 	// Return
 	return true;
@@ -167,7 +186,7 @@ Point Curve::useHermiteCurve(const unsigned int nextPoint, const float time)
 	// std::cout<<"h1 = "<<h1<<" h2 = "<<h2<<" h3 = "<<h3<<" h4 = "<<h4<<std::endl;
 
 	newPosition = h1*controlPoints.at(prev_point_index).position + h2*controlPoints.at(nextPoint).position + (intervalTime - normalTime)*h3*controlPoints.at(prev_point_index).tangent + (intervalTime - normalTime)*h4*controlPoints.at(nextPoint).tangent;
-	// std::cout<<"newPosition: "<< newPosition<<std::endl;
+	// std::cout<<"newPosition: "<< newPosition<<"  time:"<<t<<std::endl;
 	// Calculate position at t = time on Hermite curve
 
 	// Return result

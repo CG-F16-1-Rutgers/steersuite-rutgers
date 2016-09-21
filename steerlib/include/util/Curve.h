@@ -85,6 +85,9 @@ namespace Util {
 		// Contains the controlPoints that are used to create the curve
 		std::vector<CurvePoint> controlPoints;
 
+		//keep points to draw them
+		std::vector<Point> path;
+
 		// Type of curve
 		int type;
 
