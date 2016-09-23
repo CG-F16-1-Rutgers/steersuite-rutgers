@@ -80,23 +80,13 @@ void Curve::sortControlPoints()
 	}
 
 	//we have to remove points with the same timestamp in order to avoid teleportation issues
-	std::vector<int> indices;
-	for(int i=0; i<controlPoints.size()-2; i++)
-	{
-		std::cout<<controlPoints.at(i).time<<std::endl;
-		if(controlPoints.at(i).time == controlPoints.at(i+1).time)
-		{
-			std::cout<<" i = "<<i<<" i+1 = "<<i+1<<" time_i = "<< controlPoints.at(i).time<< " time_i+1 = "<<controlPoints.at(i+1).time<<std::endl;
-			indices.push_back(i);
-		}
-	}
+	// removeControlPoints();
+	//Alternatively we can  increase the time of the second point with identical time
+	adjustControlPoints();
+	
 
-	for(int i=indices.size()-1; i>=0; i--)
-	{
-		std::cout<<"removing control point with index: "<<indices.at(i)<<std::endl;
-		controlPoints.erase(controlPoints.begin() + indices.at(i));
-	}
-	indices.clear();
+
+
 	return;
 }
 
@@ -224,4 +214,44 @@ Point Curve::useCatmullCurve(const unsigned int nextPoint, const float time)
 	newPosition = P1 + (P2 * t) + (P3 * t * t) + (P4 * t * t * t);
 
 	return newPosition;
+}
+
+void Curve::removeControlPoints()
+{
+	std::vector<int> indices;
+	for(int i=0; i<controlPoints.size()-2; i++)
+	{
+		std::cout<<controlPoints.at(i).time<<std::endl;
+		if(controlPoints.at(i).time == controlPoints.at(i+1).time)
+		{
+			std::cout<<" i = "<<i<<" i+1 = "<<i+1<<" time_i = "<< controlPoints.at(i).time<< " time_i+1 = "<<controlPoints.at(i+1).time<<std::endl;
+			indices.push_back(i);
+		}
+	}
+
+	for(int i=indices.size()-1; i>=0; i--)
+	{
+		std::cout<<"removing control point with index: "<<indices.at(i)<<std::endl;
+		controlPoints.erase(controlPoints.begin() + indices.at(i));
+	}
+	indices.clear();
+}
+
+void  Curve::adjustControlPoints()
+{
+	bool foundPoint = true;
+	for(int i=0; i<controlPoints.size()-2; i++)
+	{
+		if(controlPoints.at(i).time == controlPoints.at(i+1).time && i+2<controlPoints.size())
+		{
+			controlPoints.at(i+1).time = (controlPoints.at(i).time + controlPoints.at(i+2).time)/2.0f;
+		}
+		else if(controlPoints.at(i).time == controlPoints.at(i+1).time && i+2>=controlPoints.size())
+		{
+			controlPoints.at(i+1).time += 25;
+		}
+	}
+
+
+
 }
